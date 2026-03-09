@@ -1,4 +1,4 @@
-import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal, MentorObservacao, CheckpointSemanal } from '@/types';
+import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal, MentorObservacao, CheckpointSemanal, Duvida } from '@/types';
 
 function get<T>(key: string, fallback: T): T {
   try {
@@ -104,4 +104,21 @@ export function addCheckpoint(alunoId: string, foco: string, dificuldades: strin
   all.push(checkpoint);
   set('brutal_checkpoints', all);
   return checkpoint;
+}
+
+// Dúvidas
+export function getDuvidas(): Duvida[] { return get('brutal_duvidas', []); }
+export function getDuvidasByAluno(alunoId: string): Duvida[] {
+  return getDuvidas().filter(d => d.alunoId === alunoId);
+}
+export function addDuvida(d: Omit<Duvida, 'id' | 'status' | 'createdAt'>): Duvida {
+  const all = getDuvidas();
+  const nova: Duvida = { ...d, id: crypto.randomUUID(), status: 'pendente', createdAt: new Date().toISOString() };
+  all.push(nova);
+  set('brutal_duvidas', all);
+  return nova;
+}
+export function responderDuvida(id: string, resposta: string) {
+  const all = getDuvidas().map(d => d.id === id ? { ...d, resposta, status: 'respondida' as const, respondedAt: new Date().toISOString() } : d);
+  set('brutal_duvidas', all);
 }
