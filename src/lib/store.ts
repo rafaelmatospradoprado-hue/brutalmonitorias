@@ -1,4 +1,4 @@
-import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal, MentorObservacao } from '@/types';
+import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal, MentorObservacao, CheckpointSemanal } from '@/types';
 
 function get<T>(key: string, fallback: T): T {
   try {
@@ -92,4 +92,16 @@ export function addMentorObservacao(alunoId: string, texto: string): MentorObser
   all.push(obs);
   set('brutal_mentor_obs', all);
   return obs;
+}
+
+// Checkpoints Semanais
+export function getCheckpoints(alunoId: string): CheckpointSemanal[] {
+  return get<CheckpointSemanal[]>('brutal_checkpoints', []).filter(c => c.alunoId === alunoId);
+}
+export function addCheckpoint(alunoId: string, foco: string, dificuldades: string, tarefas: string): CheckpointSemanal {
+  const all = get<CheckpointSemanal[]>('brutal_checkpoints', []);
+  const checkpoint: CheckpointSemanal = { id: crypto.randomUUID(), alunoId, data: new Date().toISOString(), foco, dificuldades, tarefas };
+  all.push(checkpoint);
+  set('brutal_checkpoints', all);
+  return checkpoint;
 }

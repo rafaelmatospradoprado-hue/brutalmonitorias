@@ -63,3 +63,12 @@ export interface MentorObservacao {
   texto: string;
   data: string;
 }
+
+export interface CheckpointSemanal {
+  id: string;
+  alunoId: string;
+  data: string;
+  foco: string;
+  dificuldades: string;
+  tarefas: string;
+}
