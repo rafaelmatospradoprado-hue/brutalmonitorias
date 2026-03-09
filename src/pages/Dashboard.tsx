@@ -26,6 +26,7 @@ export default function Dashboard() {
     if (section === 'dashboard') return <DashboardOverview />;
     if (section === 'alunos') return <StudentsSection onSelectStudent={setSelectedStudentId} selectedStudentId={selectedStudentId} />;
     if (section === 'mentor') return <MentorPanel />;
+    if (section === 'revisao') return <RevisaoConteudoSection />;
     
     if (needsStudent && !selectedStudentId) {
       return (
