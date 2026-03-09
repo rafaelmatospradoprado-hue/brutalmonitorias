@@ -11,6 +11,7 @@ import MentorPanel from '@/components/MentorPanel';
 import MapaLacunasSection from '@/components/MapaLacunasSection';
 import StudentStatusIndicator from '@/components/StudentStatusIndicator';
 import RevisaoConteudoSection from '@/components/RevisaoConteudoSection';
+import QuestoesSection from '@/components/QuestoesSection';
 import { getStudents } from '@/lib/store';
 import { AlertCircle } from 'lucide-react';
 
