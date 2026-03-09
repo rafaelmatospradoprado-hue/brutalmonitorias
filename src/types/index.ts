@@ -72,3 +72,16 @@ export interface CheckpointSemanal {
   dificuldades: string;
   tarefas: string;
 }
+
+export interface Duvida {
+  id: string;
+  alunoId: string;
+  nomeAluno: string;
+  titulo: string;
+  disciplina: string;
+  texto: string;
+  status: 'pendente' | 'respondida';
+  resposta?: string;
+  createdAt: string;
+  respondedAt?: string;
+}

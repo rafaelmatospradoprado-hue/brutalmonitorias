@@ -1,4 +1,4 @@
-import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal, MentorObservacao, CheckpointSemanal } from '@/types';
+import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal, MentorObservacao, CheckpointSemanal, Duvida } from '@/types';
 
 function get<T>(key: string, fallback: T): T {
   try {
