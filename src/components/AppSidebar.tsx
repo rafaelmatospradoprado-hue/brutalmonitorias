@@ -13,6 +13,7 @@ const navItems = [
   { id: 'provas', label: 'Provas ENEM', icon: Award },
   { id: 'evolucao', label: 'Evolução', icon: TrendingUp },
   { id: 'lacunas', label: 'Mapa de Lacunas', icon: MapPin },
+  { id: 'questoes', label: 'Questões', icon: MessageCircleQuestion },
   { id: 'revisao', label: 'Revisão', icon: PlayCircle },
   { id: 'mentor', label: 'Painel Mentor', icon: Shield },
 ];
