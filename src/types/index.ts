@@ -80,8 +80,10 @@ export interface Duvida {
   titulo: string;
   disciplina: string;
   texto: string;
+  imagemUrl?: string;
   status: 'pendente' | 'respondida';
   resposta?: string;
+  respostaImagemUrl?: string;
   createdAt: string;
   respondedAt?: string;
 }
