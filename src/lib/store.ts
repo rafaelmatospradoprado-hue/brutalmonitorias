@@ -1,4 +1,4 @@
-import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal } from '@/types';
+import { Student, ContentItem, Simulado, ProvaEnem, PlanejamentoSemanal, MentorObservacao } from '@/types';
 
 function get<T>(key: string, fallback: T): T {
   try {
@@ -80,4 +80,16 @@ export function savePlanejamento(p: PlanejamentoSemanal) {
   const idx = all.findIndex(x => x.id === p.id);
   if (idx >= 0) all[idx] = p; else all.push(p);
   set('brutal_planejamento', all);
+}
+
+// Mentor Observações
+export function getMentorObservacoes(alunoId: string): MentorObservacao[] {
+  return get<MentorObservacao[]>('brutal_mentor_obs', []).filter(o => o.alunoId === alunoId);
+}
+export function addMentorObservacao(alunoId: string, texto: string): MentorObservacao {
+  const all = get<MentorObservacao[]>('brutal_mentor_obs', []);
+  const obs: MentorObservacao = { id: crypto.randomUUID(), alunoId, texto, data: new Date().toISOString() };
+  all.push(obs);
+  set('brutal_mentor_obs', all);
+  return obs;
 }

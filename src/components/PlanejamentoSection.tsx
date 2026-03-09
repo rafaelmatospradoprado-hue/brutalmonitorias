@@ -6,22 +6,36 @@ import { ChevronDown, ChevronRight, Clock } from 'lucide-react';
 
 interface Props { alunoId: string; }
 
-function getWeeksUntilENEM(): number {
-  const enemDate = new Date(2026, 10, 1); // Nov 2026 approx
+function getENEMDate(): Date {
+  // First Sunday of November of the current or next applicable year
   const now = new Date();
-  const diff = enemDate.getTime() - now.getTime();
-  return Math.max(1, Math.ceil(diff / (7 * 24 * 60 * 60 * 1000)));
+  let year = now.getFullYear();
+  const getFirstSunday = (y: number) => {
+    const nov1 = new Date(y, 10, 1); // November 1
+    const dayOfWeek = nov1.getDay();
+    const firstSunday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
+    return new Date(y, 10, firstSunday);
+  };
+  let enemDate = getFirstSunday(year);
+  if (enemDate.getTime() < now.getTime()) {
+    enemDate = getFirstSunday(year + 1);
+  }
+  return enemDate;
 }
 
 function getDaysUntilENEM(): number {
-  const enemDate = new Date(2026, 10, 1);
   const now = new Date();
-  return Math.max(0, Math.ceil((enemDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+  return Math.max(0, Math.ceil((getENEMDate().getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+}
+
+function getWeeksUntilENEM(): number {
+  return Math.max(1, Math.ceil(getDaysUntilENEM() / 7));
 }
 
 export default function PlanejamentoSection({ alunoId }: Props) {
   const totalWeeks = useMemo(() => Math.min(getWeeksUntilENEM(), 52), []);
   const daysLeft = useMemo(() => getDaysUntilENEM(), []);
+  const weeksLeft = useMemo(() => getWeeksUntilENEM(), []);
   const [planejamentos, setPlanejamentos] = useState<PlanejamentoSemanal[]>([]);
   const [openWeek, setOpenWeek] = useState<number | null>(1);
 
@@ -40,16 +54,22 @@ export default function PlanejamentoSection({ alunoId }: Props) {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
         <h2 className="font-display text-2xl text-primary">PLANEJAMENTO SEMANAL</h2>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4 text-primary" />
-          <span className="font-display text-primary">{daysLeft}</span> dias até o ENEM
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Clock className="h-4 w-4 text-primary" />
+            <span className="font-display text-primary">{daysLeft}</span> dias
+          </div>
+          <div>
+            <span className="font-display text-primary">{weeksLeft}</span> semanas
+          </div>
+          <span className="text-xs">até o ENEM</span>
         </div>
       </div>
 
       <div className="space-y-1">
-        {Array.from({ length: Math.min(totalWeeks, 20) }, (_, i) => i + 1).map(semana => {
+        {Array.from({ length: Math.min(totalWeeks, 30) }, (_, i) => i + 1).map(semana => {
           const p = getOrCreate(semana);
           const isOpen = openWeek === semana;
           return (

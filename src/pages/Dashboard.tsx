@@ -7,6 +7,7 @@ import PlanejamentoSection from '@/components/PlanejamentoSection';
 import SimuladosSection from '@/components/SimuladosSection';
 import ProvasEnemSection from '@/components/ProvasEnemSection';
 import EvolucaoSection from '@/components/EvolucaoSection';
+import MentorPanel from '@/components/MentorPanel';
 import { AlertCircle } from 'lucide-react';
 
 export default function Dashboard() {
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const renderContent = () => {
     if (section === 'dashboard') return <DashboardOverview />;
     if (section === 'alunos') return <StudentsSection onSelectStudent={setSelectedStudentId} selectedStudentId={selectedStudentId} />;
+    if (section === 'mentor') return <MentorPanel />;
     
     if (needsStudent && !selectedStudentId) {
       return (
