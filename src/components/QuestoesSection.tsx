@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { getDuvidas, addDuvida, responderDuvida, getStudents } from '@/lib/store';
 import { Duvida } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Send, MessageCircleQuestion, Clock, CheckCircle2, Plus, ArrowLeft } from 'lucide-react';
+import { Send, MessageCircleQuestion, Clock, CheckCircle2, Plus, ArrowLeft, ImagePlus, X } from 'lucide-react';
 
 const DISCIPLINAS = [
   'Matemática', 'Física', 'Química', 'Biologia',
@@ -16,17 +16,68 @@ const DISCIPLINAS = [
   'Inglês', 'Espanhol'
 ];
 
+function ImageUploadArea({ imageUrl, onImageChange, onRemove }: { imageUrl?: string; onImageChange: (url: string) => void; onRemove: () => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 12 * 1024 * 1024) {
+      alert('Imagem muito grande. Máximo 12MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        onImageChange(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  if (imageUrl) {
+    return (
+      <div className="relative inline-block">
+        <img src={imageUrl} alt="Anexo" className="max-h-40 rounded-lg border border-border object-contain" />
+        <button
+          onClick={onRemove}
+          className="absolute -top-2 -right-2 rounded-full bg-destructive text-destructive-foreground p-1 hover:bg-destructive/80 transition-colors"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={handleFile} />
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-border rounded-lg hover:border-primary/50 hover:bg-accent/30 transition-colors cursor-pointer"
+      >
+        <ImagePlus className="h-8 w-8 text-muted-foreground mb-2" />
+        <span className="text-sm font-medium text-foreground">Adicionar imagem</span>
+        <span className="text-xs text-muted-foreground mt-0.5">JPG, PNG ou GIF (máx. 12MB)</span>
+      </button>
+    </div>
+  );
+}
+
 export default function QuestoesSection() {
   const [view, setView] = useState<'list' | 'nova'>('list');
   const [duvidas, setDuvidas] = useState<Duvida[]>(getDuvidas());
   const [respostaAberta, setRespostaAberta] = useState<string | null>(null);
   const [respostaTexto, setRespostaTexto] = useState('');
+  const [respostaImagem, setRespostaImagem] = useState<string | undefined>();
 
   // Form states
   const [titulo, setTitulo] = useState('');
   const [disciplina, setDisciplina] = useState('');
   const [texto, setTexto] = useState('');
   const [alunoId, setAlunoId] = useState('');
+  const [imagemUrl, setImagemUrl] = useState<string | undefined>();
 
   const students = getStudents();
   const pendentes = duvidas.filter(d => d.status === 'pendente').length;
@@ -41,18 +92,20 @@ export default function QuestoesSection() {
       titulo: titulo.trim(),
       disciplina,
       texto: texto.trim(),
+      imagemUrl,
     });
     setDuvidas(getDuvidas());
-    setTitulo(''); setDisciplina(''); setTexto(''); setAlunoId('');
+    setTitulo(''); setDisciplina(''); setTexto(''); setAlunoId(''); setImagemUrl(undefined);
     setView('list');
   };
 
   const handleResponder = (id: string) => {
-    if (!respostaTexto.trim()) return;
-    responderDuvida(id, respostaTexto.trim());
+    if (!respostaTexto.trim() && !respostaImagem) return;
+    responderDuvida(id, respostaTexto.trim(), respostaImagem);
     setDuvidas(getDuvidas());
     setRespostaAberta(null);
     setRespostaTexto('');
+    setRespostaImagem(undefined);
   };
 
   return (
@@ -139,7 +192,12 @@ export default function QuestoesSection() {
                           <span className="text-xs text-muted-foreground">{d.nomeAluno}</span>
                         </div>
                         <h3 className="font-semibold text-foreground">{d.titulo}</h3>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{d.texto}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{d.texto}</p>
+
+                        {d.imagemUrl && (
+                          <img src={d.imagemUrl} alt="Anexo da dúvida" className="mt-3 max-h-60 rounded-lg border border-border object-contain" />
+                        )}
+
                         <p className="text-xs text-muted-foreground mt-2">
                           {new Date(d.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </p>
@@ -148,26 +206,38 @@ export default function QuestoesSection() {
                           <div className="mt-3 p-3 rounded-lg bg-accent/50 border border-border">
                             <p className="text-xs font-medium text-primary mb-1">Resposta do mentor:</p>
                             <p className="text-sm text-foreground">{d.resposta}</p>
+                            {d.respostaImagemUrl && (
+                              <img src={d.respostaImagemUrl} alt="Anexo da resposta" className="mt-2 max-h-60 rounded-lg border border-border object-contain" />
+                            )}
                           </div>
                         )}
 
                         {d.status === 'pendente' && respostaAberta === d.id && (
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-3 space-y-3">
                             <Textarea
                               placeholder="Escreva sua resposta..."
                               value={respostaTexto}
                               onChange={e => setRespostaTexto(e.target.value)}
                               className="min-h-[80px]"
                             />
+                            <ImageUploadArea
+                              imageUrl={respostaImagem}
+                              onImageChange={setRespostaImagem}
+                              onRemove={() => setRespostaImagem(undefined)}
+                            />
                             <div className="flex gap-2">
-                              <Button size="sm" onClick={() => handleResponder(d.id)}>Enviar Resposta</Button>
-                              <Button size="sm" variant="ghost" onClick={() => { setRespostaAberta(null); setRespostaTexto(''); }}>Cancelar</Button>
+                              <Button size="sm" onClick={() => handleResponder(d.id)} disabled={!respostaTexto.trim() && !respostaImagem}>
+                                Enviar Resposta
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => { setRespostaAberta(null); setRespostaTexto(''); setRespostaImagem(undefined); }}>
+                                Cancelar
+                              </Button>
                             </div>
                           </div>
                         )}
                       </div>
                       {d.status === 'pendente' && respostaAberta !== d.id && (
-                        <Button size="sm" variant="outline" onClick={() => { setRespostaAberta(d.id); setRespostaTexto(''); }}>
+                        <Button size="sm" variant="outline" onClick={() => { setRespostaAberta(d.id); setRespostaTexto(''); setRespostaImagem(undefined); }}>
                           Responder
                         </Button>
                       )}
@@ -226,6 +296,14 @@ export default function QuestoesSection() {
                 value={texto}
                 onChange={e => setTexto(e.target.value)}
                 className="min-h-[150px]"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Anexos (opcional)</label>
+              <ImageUploadArea
+                imageUrl={imagemUrl}
+                onImageChange={setImagemUrl}
+                onRemove={() => setImagemUrl(undefined)}
               />
             </div>
             <Button onClick={handleSubmit} className="w-full gap-2" disabled={!titulo.trim() || !disciplina || !texto.trim() || !alunoId}>
