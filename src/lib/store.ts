@@ -118,7 +118,7 @@ export function addDuvida(d: Omit<Duvida, 'id' | 'status' | 'createdAt'>): Duvid
   set('brutal_duvidas', all);
   return nova;
 }
-export function responderDuvida(id: string, resposta: string) {
-  const all = getDuvidas().map(d => d.id === id ? { ...d, resposta, status: 'respondida' as const, respondedAt: new Date().toISOString() } : d);
+export function responderDuvida(id: string, resposta: string, respostaImagemUrl?: string) {
+  const all = getDuvidas().map(d => d.id === id ? { ...d, resposta, respostaImagemUrl, status: 'respondida' as const, respondedAt: new Date().toISOString() } : d);
   set('brutal_duvidas', all);
 }
