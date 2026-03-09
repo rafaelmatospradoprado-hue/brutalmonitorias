@@ -22,11 +22,16 @@ export interface ContentItem {
 export interface Simulado {
   id: string;
   alunoId: string;
+  numero: number;
   data: string;
+  origem: string;
   linguagens: number;
   humanas: number;
   natureza: number;
   matematica: number;
+  dificuldadePercebida: string;
+  dificuldadesEncontradas: string;
+  correcaoLacunas: boolean;
 }
 
 export interface ProvaEnem {
@@ -37,6 +42,9 @@ export interface ProvaEnem {
   humanas: number;
   natureza: number;
   matematica: number;
+  dificuldadePercebida: string;
+  dificuldadesEncontradas: string;
+  correcaoLacunas: boolean;
 }
 
 export interface PlanejamentoSemanal {
@@ -47,4 +55,11 @@ export interface PlanejamentoSemanal {
   listas: string;
   simulados: string;
   observacoes: string;
+}
+
+export interface MentorObservacao {
+  id: string;
+  alunoId: string;
+  texto: string;
+  data: string;
 }
