@@ -8,13 +8,18 @@ import SimuladosSection from '@/components/SimuladosSection';
 import ProvasEnemSection from '@/components/ProvasEnemSection';
 import EvolucaoSection from '@/components/EvolucaoSection';
 import MentorPanel from '@/components/MentorPanel';
+import MapaLacunasSection from '@/components/MapaLacunasSection';
+import StudentStatusIndicator from '@/components/StudentStatusIndicator';
+import { getStudents } from '@/lib/store';
 import { AlertCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const [section, setSection] = useState('dashboard');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
 
-  const needsStudent = ['conteudos', 'planejamento', 'simulados', 'provas', 'evolucao'].includes(section);
+  const needsStudent = ['conteudos', 'planejamento', 'simulados', 'provas', 'evolucao', 'lacunas'].includes(section);
+
+  const selectedStudent = selectedStudentId ? getStudents().find(s => s.id === selectedStudentId) : null;
 
   const renderContent = () => {
     if (section === 'dashboard') return <DashboardOverview />;
@@ -30,13 +35,19 @@ export default function Dashboard() {
       );
     }
 
-    if (section === 'conteudos' && selectedStudentId) return <ContentSection alunoId={selectedStudentId} />;
-    if (section === 'planejamento' && selectedStudentId) return <PlanejamentoSection alunoId={selectedStudentId} />;
-    if (section === 'simulados' && selectedStudentId) return <SimuladosSection alunoId={selectedStudentId} />;
-    if (section === 'provas' && selectedStudentId) return <ProvasEnemSection alunoId={selectedStudentId} />;
-    if (section === 'evolucao' && selectedStudentId) return <EvolucaoSection alunoId={selectedStudentId} />;
-
-    return null;
+    return (
+      <>
+        {selectedStudent && (
+          <StudentStatusIndicator student={selectedStudent} />
+        )}
+        {section === 'conteudos' && selectedStudentId && <ContentSection alunoId={selectedStudentId} />}
+        {section === 'planejamento' && selectedStudentId && <PlanejamentoSection alunoId={selectedStudentId} />}
+        {section === 'simulados' && selectedStudentId && <SimuladosSection alunoId={selectedStudentId} />}
+        {section === 'provas' && selectedStudentId && <ProvasEnemSection alunoId={selectedStudentId} />}
+        {section === 'evolucao' && selectedStudentId && <EvolucaoSection alunoId={selectedStudentId} />}
+        {section === 'lacunas' && selectedStudentId && <MapaLacunasSection alunoId={selectedStudentId} />}
+      </>
+    );
   };
 
   return (

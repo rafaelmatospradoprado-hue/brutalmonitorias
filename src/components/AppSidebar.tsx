@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import logo from '@/assets/logo_brutal.jpeg';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, Users, BookOpen, Calendar, ClipboardList, Award, TrendingUp, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Calendar, ClipboardList, Award, TrendingUp, LogOut, Shield, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { id: 'simulados', label: 'Simulados', icon: ClipboardList },
   { id: 'provas', label: 'Provas ENEM', icon: Award },
   { id: 'evolucao', label: 'Evolução', icon: TrendingUp },
+  { id: 'lacunas', label: 'Mapa de Lacunas', icon: MapPin },
   { id: 'mentor', label: 'Painel Mentor', icon: Shield },
 ];
 
