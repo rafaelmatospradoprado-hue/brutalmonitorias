@@ -10,6 +10,7 @@ import EvolucaoSection from '@/components/EvolucaoSection';
 import MentorPanel from '@/components/MentorPanel';
 import MapaLacunasSection from '@/components/MapaLacunasSection';
 import StudentStatusIndicator from '@/components/StudentStatusIndicator';
+import RevisaoConteudoSection from '@/components/RevisaoConteudoSection';
 import { getStudents } from '@/lib/store';
 import { AlertCircle } from 'lucide-react';
 
@@ -25,6 +26,7 @@ export default function Dashboard() {
     if (section === 'dashboard') return <DashboardOverview />;
     if (section === 'alunos') return <StudentsSection onSelectStudent={setSelectedStudentId} selectedStudentId={selectedStudentId} />;
     if (section === 'mentor') return <MentorPanel />;
+    if (section === 'revisao') return <RevisaoConteudoSection />;
     
     if (needsStudent && !selectedStudentId) {
       return (
