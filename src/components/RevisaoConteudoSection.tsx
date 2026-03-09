@@ -153,7 +153,7 @@ export default function RevisaoConteudoSection() {
           <Card className="flex flex-col">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-orange-500" />
+                <BookOpen className="w-5 h-5 text-primary" />
                 <CardTitle>Resolução de Provas do ENEM</CardTitle>
               </div>
               <CardDescription className="text-sm mt-2">
