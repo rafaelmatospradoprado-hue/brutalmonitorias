@@ -10,6 +10,7 @@ import EvolucaoSection from '@/components/EvolucaoSection';
 import MentorPanel from '@/components/MentorPanel';
 import MapaLacunasSection from '@/components/MapaLacunasSection';
 import StudentStatusIndicator from '@/components/StudentStatusIndicator';
+import RevisaoConteudoSection from '@/components/RevisaoConteudoSection';
 import { getStudents } from '@/lib/store';
 import { AlertCircle } from 'lucide-react';
 
