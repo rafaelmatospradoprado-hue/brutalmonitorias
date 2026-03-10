@@ -51,12 +51,18 @@ export function toggleContent(id: string, field: 'teoria' | 'pratica' | 'dominio
 export function getSimulados(alunoId: string): Simulado[] {
   return get<Simulado[]>('brutal_simulados', []).filter(s => s.alunoId === alunoId);
 }
+export function getAllSimulados(): Simulado[] { return get('brutal_simulados', []); }
 export function addSimulado(s: Omit<Simulado, 'id'>): Simulado {
   const all = get<Simulado[]>('brutal_simulados', []);
   const newS: Simulado = { ...s, id: crypto.randomUUID() };
   all.push(newS);
   set('brutal_simulados', all);
   return newS;
+}
+export function updateSimulado(id: string, data: Partial<Simulado>) {
+  const all = get<Simulado[]>('brutal_simulados', []);
+  const updated = all.map(s => s.id === id ? { ...s, ...data } : s);
+  set('brutal_simulados', updated);
 }
 
 // Provas ENEM
