@@ -32,6 +32,18 @@ export interface Simulado {
   dificuldadePercebida: string;
   dificuldadesEncontradas: string;
   correcaoLacunas: boolean;
+  // Error analysis
+  erroLacunaConteudo?: number;
+  erroDesatencao?: number;
+  erroBanal?: number;
+  erroConteudoNaoEstudado?: number;
+  // Lacunas
+  conteudosComLacuna?: string;
+  // Questões para monitoria
+  questoesAjuda?: string;
+  questoesAjudaImagem?: string;
+  // Revision
+  acertosPosRevisao?: number;
 }
 
 export interface ProvaEnem {
