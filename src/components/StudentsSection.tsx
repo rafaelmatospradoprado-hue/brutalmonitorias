@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Student } from '@/types';
-import { getStudents, addStudent } from '@/lib/store';
+import { useStudents } from '@/hooks/useSupabaseData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -13,19 +13,16 @@ interface Props {
 }
 
 export default function StudentsSection({ onSelectStudent, selectedStudentId }: Props) {
-  const [students, setStudents] = useState<Student[]>(getStudents());
+  const { students, addStudent } = useStudents();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nome: '', objetivo: '', acertosIniciais: 0, meta: 150 });
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!form.nome) return;
-    const s = addStudent({ ...form, acertosAtuais: form.acertosIniciais });
-    setStudents(getStudents());
+    await addStudent({ ...form, acertosAtuais: form.acertosIniciais });
     setForm({ nome: '', objetivo: '', acertosIniciais: 0, meta: 150 });
     setOpen(false);
   };
-
-  const refresh = () => setStudents(getStudents());
 
   return (
     <div className="animate-fade-in">

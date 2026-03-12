@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { getSimulados, getProvasEnem } from '@/lib/store';
+import { useSimulados, useProvasEnem } from '@/hooks/useSupabaseData';
 import { Student } from '@/types';
 import { ShieldCheck, ShieldAlert, ShieldX, Target } from 'lucide-react';
 
@@ -8,8 +8,8 @@ interface Props { student: Student; }
 type Zone = 'segura' | 'atencao' | 'risco';
 
 export default function StudentStatusIndicator({ student }: Props) {
-  const simulados = useMemo(() => getSimulados(student.id), [student.id]);
-  const provas = useMemo(() => getProvasEnem(student.id), [student.id]);
+  const { simulados } = useSimulados(student.id);
+  const { provas } = useProvasEnem(student.id);
 
   const { mediaAtual, distancia, zona } = useMemo(() => {
     const recents = [...simulados].slice(-5);

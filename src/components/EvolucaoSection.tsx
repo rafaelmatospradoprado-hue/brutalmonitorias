@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { getSimulados, getProvasEnem, getStudents } from '@/lib/store';
+import React, { useMemo } from 'react';
+import { useSimulados, useProvasEnem, useStudents } from '@/hooks/useSupabaseData';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Target, CalendarDays, Rocket } from 'lucide-react';
 
@@ -31,55 +31,46 @@ function getMonthsUntilENEM(): number {
 }
 
 export default function EvolucaoSection({ alunoId }: Props) {
-  const [data, setData] = useState<Record<string, string | number>[]>([]);
-  const [selected, setSelected] = useState('total');
-  const student = useMemo(() => getStudents().find(s => s.id === alunoId), [alunoId]);
+  const [selected, setSelected] = React.useState('total');
+  const { students } = useStudents();
+  const { simulados } = useSimulados(alunoId);
+  const { provas } = useProvasEnem(alunoId);
 
-  useEffect(() => {
-    const simulados = getSimulados(alunoId).map((s, i) => ({
+  const student = useMemo(() => students.find(s => s.id === alunoId), [students, alunoId]);
+
+  const data = useMemo(() => {
+    const simData = simulados.map((s, i) => ({
       nome: `Sim #${s.numero ?? i + 1}`,
       total: s.linguagens + s.humanas + s.natureza + s.matematica,
       linguagens: s.linguagens, humanas: s.humanas, natureza: s.natureza, matematica: s.matematica,
     }));
-    const provas = getProvasEnem(alunoId).sort((a, b) => a.ano - b.ano).map(p => ({
+    const provaData = [...provas].sort((a, b) => a.ano - b.ano).map(p => ({
       nome: `ENEM ${p.ano}`,
       total: p.linguagens + p.humanas + p.natureza + p.matematica,
       linguagens: p.linguagens, humanas: p.humanas, natureza: p.natureza, matematica: p.matematica,
     }));
-    setData([...provas, ...simulados]);
-  }, [alunoId]);
+    return [...provaData, ...simData];
+  }, [simulados, provas]);
 
   const opt = areaOptions.find(a => a.key === selected)!;
 
-  // Calculate projection
   const projection = useMemo(() => {
-    const simulados = getSimulados(alunoId);
     if (simulados.length < 2) return null;
-
     const recent = simulados.slice(-5);
     const totals = recent.map(s => s.linguagens + s.humanas + s.natureza + s.matematica);
-    
-    // Calculate average growth per simulado
     const growthRates: number[] = [];
-    for (let i = 1; i < totals.length; i++) {
-      growthRates.push(totals[i] - totals[i - 1]);
-    }
+    for (let i = 1; i < totals.length; i++) growthRates.push(totals[i] - totals[i - 1]);
     const avgGrowth = growthRates.length > 0 ? growthRates.reduce((a, b) => a + b, 0) / growthRates.length : 0;
-    
     const currentAvg = Math.round(totals.reduce((a, b) => a + b, 0) / totals.length);
     const monthsLeft = getMonthsUntilENEM();
-    
-    // Project: ~1 simulado/month growth
     const projectedTotal = Math.round(currentAvg + (avgGrowth * monthsLeft));
-    
     return {
-      currentAvg,
-      projectedTotal,
+      currentAvg, projectedTotal,
       growthPerMonth: Math.round(avgGrowth),
       meta: student?.meta ?? 150,
       diff: projectedTotal - (student?.meta ?? 150),
     };
-  }, [alunoId, student?.meta]);
+  }, [simulados, student?.meta]);
 
   const enemYear = getENEMDate().getFullYear();
 
@@ -89,20 +80,13 @@ export default function EvolucaoSection({ alunoId }: Props) {
         <h2 className="font-display text-2xl text-primary">EVOLUÇÃO</h2>
         <div className="flex gap-1 flex-wrap">
           {areaOptions.map(a => (
-            <button
-              key={a.key}
-              onClick={() => setSelected(a.key)}
-              className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                selected === a.key ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {a.label}
-            </button>
+            <button key={a.key} onClick={() => setSelected(a.key)}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${selected === a.key ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}
+            >{a.label}</button>
           ))}
         </div>
       </div>
 
-      {/* PROJEÇÃO DE ACERTOS */}
       {projection && (
         <div className="bg-card border border-border rounded-lg p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
@@ -111,35 +95,20 @@ export default function EvolucaoSection({ alunoId }: Props) {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-3 bg-background rounded-lg border border-border">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-                <TrendingUp className="h-3.5 w-3.5" />
-                <span>Acertos Projetados</span>
-              </div>
-              <p className={`font-display text-2xl ${projection.diff >= 0 ? 'text-emerald-400' : 'text-destructive'}`}>
-                {projection.projectedTotal}
-              </p>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><TrendingUp className="h-3.5 w-3.5" /><span>Acertos Projetados</span></div>
+              <p className={`font-display text-2xl ${projection.diff >= 0 ? 'text-emerald-400' : 'text-destructive'}`}>{projection.projectedTotal}</p>
             </div>
             <div className="p-3 bg-background rounded-lg border border-border">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-                <Target className="h-3.5 w-3.5" />
-                <span>Meta do Aluno</span>
-              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Target className="h-3.5 w-3.5" /><span>Meta do Aluno</span></div>
               <p className="font-display text-2xl text-foreground">{projection.meta}</p>
             </div>
             <div className="p-3 bg-background rounded-lg border border-border">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-                <CalendarDays className="h-3.5 w-3.5" />
-                <span>Diferença</span>
-              </div>
-              <p className={`font-display text-2xl ${projection.diff >= 0 ? 'text-emerald-400' : 'text-destructive'}`}>
-                {projection.diff >= 0 ? `+${projection.diff}` : projection.diff}
-              </p>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><CalendarDays className="h-3.5 w-3.5" /><span>Diferença</span></div>
+              <p className={`font-display text-2xl ${projection.diff >= 0 ? 'text-emerald-400' : 'text-destructive'}`}>{projection.diff >= 0 ? `+${projection.diff}` : projection.diff}</p>
             </div>
             <div className="p-3 bg-background rounded-lg border border-border">
               <div className="text-xs text-muted-foreground mb-1">Crescimento/mês</div>
-              <p className={`font-display text-2xl ${projection.growthPerMonth >= 0 ? 'text-emerald-400' : 'text-destructive'}`}>
-                {projection.growthPerMonth >= 0 ? `+${projection.growthPerMonth}` : projection.growthPerMonth}
-              </p>
+              <p className={`font-display text-2xl ${projection.growthPerMonth >= 0 ? 'text-emerald-400' : 'text-destructive'}`}>{projection.growthPerMonth >= 0 ? `+${projection.growthPerMonth}` : projection.growthPerMonth}</p>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
