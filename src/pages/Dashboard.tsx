@@ -11,7 +11,9 @@ import MentorPanel from '@/components/MentorPanel';
 import MapaLacunasSection from '@/components/MapaLacunasSection';
 import StudentStatusIndicator from '@/components/StudentStatusIndicator';
 import RevisaoConteudoSection from '@/components/RevisaoConteudoSection';
+import NivelamentoSection from '@/components/NivelamentoSection';
 import QuestoesSection from '@/components/QuestoesSection';
+import AssistenteRedacao from '@/components/AssistenteRedacao';
 import { getStudents } from '@/lib/store';
 import { AlertCircle } from 'lucide-react';
 
@@ -25,10 +27,12 @@ export default function Dashboard() {
 
   const renderContent = () => {
     if (section === 'dashboard') return <DashboardOverview />;
+    if (section === 'nivelamento') return <NivelamentoSection />;
     if (section === 'alunos') return <StudentsSection onSelectStudent={setSelectedStudentId} selectedStudentId={selectedStudentId} />;
     if (section === 'mentor') return <MentorPanel />;
     if (section === 'revisao') return <RevisaoConteudoSection />;
     if (section === 'questoes') return <QuestoesSection />;
+    if (section === 'redacao') return <AssistenteRedacao />;
     
     if (needsStudent && !selectedStudentId) {
       return (
