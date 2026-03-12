@@ -14,19 +14,14 @@ const areaOptions = [
 ];
 
 function getENEMDate(): Date {
-  const now = new Date();
-  let year = now.getFullYear();
+  const year = 2026;
   const getFirstSunday = (y: number) => {
     const nov1 = new Date(y, 10, 1);
     const dayOfWeek = nov1.getDay();
     const firstSunday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
     return new Date(y, 10, firstSunday);
   };
-  let enemDate = getFirstSunday(year);
-  if (enemDate.getTime() < now.getTime()) {
-    enemDate = getFirstSunday(year + 1);
-  }
-  return enemDate;
+  return getFirstSunday(year);
 }
 
 function getMonthsUntilENEM(): number {
