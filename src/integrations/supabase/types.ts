@@ -14,7 +14,380 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      checkpoints: {
+        Row: {
+          aluno_id: string
+          data: string
+          dificuldades: string
+          foco: string
+          id: string
+          tarefas: string
+        }
+        Insert: {
+          aluno_id: string
+          data?: string
+          dificuldades?: string
+          foco?: string
+          id?: string
+          tarefas?: string
+        }
+        Update: {
+          aluno_id?: string
+          data?: string
+          dificuldades?: string
+          foco?: string
+          id?: string
+          tarefas?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkpoints_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contents: {
+        Row: {
+          aluno_id: string
+          area: string
+          dominio: boolean
+          id: string
+          incidencia: string
+          nome: string
+          pratica: boolean
+          teoria: boolean
+        }
+        Insert: {
+          aluno_id: string
+          area: string
+          dominio?: boolean
+          id?: string
+          incidencia: string
+          nome: string
+          pratica?: boolean
+          teoria?: boolean
+        }
+        Update: {
+          aluno_id?: string
+          area?: string
+          dominio?: boolean
+          id?: string
+          incidencia?: string
+          nome?: string
+          pratica?: boolean
+          teoria?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contents_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duvidas: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          disciplina: string
+          id: string
+          imagem_url: string | null
+          nome_aluno: string
+          responded_at: string | null
+          resposta: string | null
+          resposta_imagem_url: string | null
+          status: string
+          texto: string
+          titulo: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          disciplina?: string
+          id?: string
+          imagem_url?: string | null
+          nome_aluno?: string
+          responded_at?: string | null
+          resposta?: string | null
+          resposta_imagem_url?: string | null
+          status?: string
+          texto?: string
+          titulo?: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          disciplina?: string
+          id?: string
+          imagem_url?: string | null
+          nome_aluno?: string
+          responded_at?: string | null
+          resposta?: string | null
+          resposta_imagem_url?: string | null
+          status?: string
+          texto?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duvidas_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentor_observacoes: {
+        Row: {
+          aluno_id: string
+          data: string
+          id: string
+          texto: string
+        }
+        Insert: {
+          aluno_id: string
+          data?: string
+          id?: string
+          texto: string
+        }
+        Update: {
+          aluno_id?: string
+          data?: string
+          id?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_observacoes_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planejamentos: {
+        Row: {
+          aluno_id: string
+          conteudos: string
+          id: string
+          listas: string
+          observacoes: string
+          semana: number
+          simulados_text: string
+        }
+        Insert: {
+          aluno_id: string
+          conteudos?: string
+          id?: string
+          listas?: string
+          observacoes?: string
+          semana: number
+          simulados_text?: string
+        }
+        Update: {
+          aluno_id?: string
+          conteudos?: string
+          id?: string
+          listas?: string
+          observacoes?: string
+          semana?: number
+          simulados_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planejamentos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provas_enem: {
+        Row: {
+          acertos_pos_revisao: number | null
+          aluno_id: string
+          ano: number
+          conteudos_com_lacuna: string | null
+          correcao_lacunas: boolean
+          dificuldade_percebida: string
+          dificuldades_encontradas: string
+          erro_banal: number | null
+          erro_conteudo_nao_estudado: number | null
+          erro_desatencao: number | null
+          erro_lacuna_conteudo: number | null
+          humanas: number
+          id: string
+          linguagens: number
+          matematica: number
+          natureza: number
+          questoes_ajuda: string | null
+          questoes_ajuda_imagem: string | null
+        }
+        Insert: {
+          acertos_pos_revisao?: number | null
+          aluno_id: string
+          ano: number
+          conteudos_com_lacuna?: string | null
+          correcao_lacunas?: boolean
+          dificuldade_percebida?: string
+          dificuldades_encontradas?: string
+          erro_banal?: number | null
+          erro_conteudo_nao_estudado?: number | null
+          erro_desatencao?: number | null
+          erro_lacuna_conteudo?: number | null
+          humanas?: number
+          id?: string
+          linguagens?: number
+          matematica?: number
+          natureza?: number
+          questoes_ajuda?: string | null
+          questoes_ajuda_imagem?: string | null
+        }
+        Update: {
+          acertos_pos_revisao?: number | null
+          aluno_id?: string
+          ano?: number
+          conteudos_com_lacuna?: string | null
+          correcao_lacunas?: boolean
+          dificuldade_percebida?: string
+          dificuldades_encontradas?: string
+          erro_banal?: number | null
+          erro_conteudo_nao_estudado?: number | null
+          erro_desatencao?: number | null
+          erro_lacuna_conteudo?: number | null
+          humanas?: number
+          id?: string
+          linguagens?: number
+          matematica?: number
+          natureza?: number
+          questoes_ajuda?: string | null
+          questoes_ajuda_imagem?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provas_enem_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simulados: {
+        Row: {
+          acertos_pos_revisao: number | null
+          aluno_id: string
+          conteudos_com_lacuna: string | null
+          correcao_lacunas: boolean
+          data: string
+          dificuldade_percebida: string
+          dificuldades_encontradas: string
+          erro_banal: number | null
+          erro_conteudo_nao_estudado: number | null
+          erro_desatencao: number | null
+          erro_lacuna_conteudo: number | null
+          humanas: number
+          id: string
+          linguagens: number
+          matematica: number
+          natureza: number
+          numero: number
+          origem: string
+          questoes_ajuda: string | null
+          questoes_ajuda_imagem: string | null
+        }
+        Insert: {
+          acertos_pos_revisao?: number | null
+          aluno_id: string
+          conteudos_com_lacuna?: string | null
+          correcao_lacunas?: boolean
+          data?: string
+          dificuldade_percebida?: string
+          dificuldades_encontradas?: string
+          erro_banal?: number | null
+          erro_conteudo_nao_estudado?: number | null
+          erro_desatencao?: number | null
+          erro_lacuna_conteudo?: number | null
+          humanas?: number
+          id?: string
+          linguagens?: number
+          matematica?: number
+          natureza?: number
+          numero?: number
+          origem?: string
+          questoes_ajuda?: string | null
+          questoes_ajuda_imagem?: string | null
+        }
+        Update: {
+          acertos_pos_revisao?: number | null
+          aluno_id?: string
+          conteudos_com_lacuna?: string | null
+          correcao_lacunas?: boolean
+          data?: string
+          dificuldade_percebida?: string
+          dificuldades_encontradas?: string
+          erro_banal?: number | null
+          erro_conteudo_nao_estudado?: number | null
+          erro_desatencao?: number | null
+          erro_lacuna_conteudo?: number | null
+          humanas?: number
+          id?: string
+          linguagens?: number
+          matematica?: number
+          natureza?: number
+          numero?: number
+          origem?: string
+          questoes_ajuda?: string | null
+          questoes_ajuda_imagem?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "simulados_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          acertos_atuais: number
+          acertos_iniciais: number
+          created_at: string
+          id: string
+          meta: number
+          nome: string
+          objetivo: string
+        }
+        Insert: {
+          acertos_atuais?: number
+          acertos_iniciais?: number
+          created_at?: string
+          id?: string
+          meta?: number
+          nome: string
+          objetivo?: string
+        }
+        Update: {
+          acertos_atuais?: number
+          acertos_iniciais?: number
+          created_at?: string
+          id?: string
+          meta?: number
+          nome?: string
+          objetivo?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
