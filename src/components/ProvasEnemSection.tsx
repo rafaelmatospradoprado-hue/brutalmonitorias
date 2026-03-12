@@ -56,22 +56,6 @@ function ImageUploadInline({ imageUrl, onImageChange, onRemove }: { imageUrl?: s
   );
 }
 
-interface Props { alunoId: string; }
-
-const TOTAL_QUESTOES = 180;
-const anos = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
-const dificuldadeReferencia: Record<number, number> = {
-  2016: 7.0, 2017: 8.0, 2018: 8.5, 2019: 5.5, 2020: 5.5,
-  2021: 6.0, 2022: 7.0, 2023: 5.0, 2024: 0, 2025: 0,
-};
-
-function getDiffColor(d: number) {
-  if (d === 0) return 'text-muted-foreground';
-  if (d <= 5.5) return 'text-green-400';
-  if (d <= 7.0) return 'text-yellow-400';
-  return 'text-red-400';
-}
-
 export default function ProvasEnemSection({ alunoId }: Props) {
   const [provas, setProvas] = useState<ProvaEnem[]>([]);
   const [open, setOpen] = useState(false);
