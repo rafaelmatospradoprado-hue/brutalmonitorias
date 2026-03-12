@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Send, MessageCircleQuestion, Clock, CheckCircle2, Plus, ArrowLeft, ImagePlus, X } from 'lucide-react';
+import { Send, MessageCircleQuestion, Clock, CheckCircle2, Plus, ArrowLeft, ImagePlus, X, AlertTriangle } from 'lucide-react';
 
 const DISCIPLINAS = [
   'Matemática', 'Física', 'Química', 'Biologia',
@@ -205,7 +205,7 @@ export default function QuestoesSection() {
                         {d.resposta && (
                           <div className="mt-3 p-3 rounded-lg bg-accent/50 border border-border">
                             <p className="text-xs font-medium text-primary mb-1">Resposta do mentor:</p>
-                            <p className="text-sm text-foreground">{d.resposta}</p>
+                            <p className="text-sm text-foreground whitespace-pre-wrap">{d.resposta}</p>
                             {d.respostaImagemUrl && (
                               <img src={d.respostaImagemUrl} alt="Anexo da resposta" className="mt-2 max-h-60 rounded-lg border border-border object-contain" />
                             )}
@@ -236,11 +236,6 @@ export default function QuestoesSection() {
                           </div>
                         )}
                       </div>
-                      {d.status === 'pendente' && respostaAberta !== d.id && (
-                        <Button size="sm" variant="outline" onClick={() => { setRespostaAberta(d.id); setRespostaTexto(''); setRespostaImagem(undefined); }}>
-                          Responder
-                        </Button>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -250,11 +245,19 @@ export default function QuestoesSection() {
         </>
       ) : (
         /* New Question Form */
-        <Card>
+        <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle className="text-lg">Nova Dúvida</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-4">
+              <h3 className="font-display text-primary text-sm flex items-center gap-2 mb-1">
+                <AlertTriangle className="h-4 w-4" /> Importante: Questões e Simulados
+              </h3>
+              <p className="text-xs text-foreground leading-relaxed">
+                Para mantermos a mesma numeração de questões para todos os alunos e facilitarmos o tira-dúvidas, <strong>TODAS AS DÚVIDAS E SIMULADOS</strong> referentes às provas do ENEM devem seguir exclusivamente a <strong>VERSÃO AZUL</strong> da prova. Caso sua dúvida seja do ENEM, cite o número da questão da prova AZUL.
+              </p>
+            </div>
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Aluno</label>
               <Select value={alunoId} onValueChange={setAlunoId}>
