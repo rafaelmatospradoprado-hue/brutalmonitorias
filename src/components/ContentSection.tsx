@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { ContentItem } from '@/types';
-import { getContents, toggleContent, initContentForStudent } from '@/lib/store';
+import { useContents } from '@/hooks/useSupabaseData';
 import { contentTemplate } from '@/data/contentTemplate';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -23,16 +23,14 @@ const incidenciaColors: Record<string, string> = {
 };
 
 export default function ContentSection({ alunoId }: Props) {
-  const [items, setItems] = useState<ContentItem[]>([]);
+  const { contents: items, initContentForStudent, toggleContent } = useContents(alunoId);
 
   useEffect(() => {
-    initContentForStudent(alunoId, contentTemplate);
-    setItems(getContents(alunoId));
+    initContentForStudent(alunoId);
   }, [alunoId]);
 
   const handleToggle = (id: string, field: 'teoria' | 'pratica' | 'dominio') => {
     toggleContent(id, field);
-    setItems(getContents(alunoId));
   };
 
   const areas: ('Linguagens' | 'Humanas' | 'Natureza' | 'Matemática')[] = ['Matemática', 'Natureza', 'Humanas', 'Linguagens'];

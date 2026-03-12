@@ -14,16 +14,17 @@ import RevisaoConteudoSection from '@/components/RevisaoConteudoSection';
 import NivelamentoSection from '@/components/NivelamentoSection';
 import QuestoesSection from '@/components/QuestoesSection';
 import AssistenteRedacao from '@/components/AssistenteRedacao';
-import { getStudents } from '@/lib/store';
+import { useStudents } from '@/hooks/useSupabaseData';
 import { AlertCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const [section, setSection] = useState('dashboard');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const { students } = useStudents();
 
   const needsStudent = ['conteudos', 'planejamento', 'simulados', 'provas', 'evolucao', 'lacunas'].includes(section);
 
-  const selectedStudent = selectedStudentId ? getStudents().find(s => s.id === selectedStudentId) : null;
+  const selectedStudent = selectedStudentId ? students.find(s => s.id === selectedStudentId) : null;
 
   const renderContent = () => {
     if (section === 'dashboard') return <DashboardOverview />;

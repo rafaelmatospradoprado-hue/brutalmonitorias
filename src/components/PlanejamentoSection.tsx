@@ -1,31 +1,27 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { PlanejamentoSemanal } from '@/types';
-import { getPlanejamentos, savePlanejamento } from '@/lib/store';
+import { usePlanejamentos } from '@/hooks/useSupabaseData';
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronDown, ChevronRight, Clock } from 'lucide-react';
 
 interface Props { alunoId: string; }
 
 function getENEMDate(): Date {
-  // First Sunday of November of the current or next applicable year
   const now = new Date();
   let year = now.getFullYear();
   const getFirstSunday = (y: number) => {
-    const nov1 = new Date(y, 10, 1); // November 1
+    const nov1 = new Date(y, 10, 1);
     const dayOfWeek = nov1.getDay();
     const firstSunday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
     return new Date(y, 10, firstSunday);
   };
   let enemDate = getFirstSunday(year);
-  if (enemDate.getTime() < now.getTime()) {
-    enemDate = getFirstSunday(year + 1);
-  }
+  if (enemDate.getTime() < now.getTime()) enemDate = getFirstSunday(year + 1);
   return enemDate;
 }
 
 function getDaysUntilENEM(): number {
-  const now = new Date();
-  return Math.max(0, Math.ceil((getENEMDate().getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+  return Math.max(0, Math.ceil((getENEMDate().getTime() - new Date().getTime()) / (24 * 60 * 60 * 1000)));
 }
 
 function getWeeksUntilENEM(): number {
@@ -36,21 +32,29 @@ export default function PlanejamentoSection({ alunoId }: Props) {
   const totalWeeks = useMemo(() => Math.min(getWeeksUntilENEM(), 52), []);
   const daysLeft = useMemo(() => getDaysUntilENEM(), []);
   const weeksLeft = useMemo(() => getWeeksUntilENEM(), []);
-  const [planejamentos, setPlanejamentos] = useState<PlanejamentoSemanal[]>([]);
+  const { planejamentos, savePlanejamento } = usePlanejamentos(alunoId);
   const [openWeek, setOpenWeek] = useState<number | null>(1);
-
-  useEffect(() => { setPlanejamentos(getPlanejamentos(alunoId)); }, [alunoId]);
+  const [localEdits, setLocalEdits] = useState<Record<number, PlanejamentoSemanal>>({});
+  const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 
   const getOrCreate = (semana: number): PlanejamentoSemanal => {
+    if (localEdits[semana]) return localEdits[semana];
     const existing = planejamentos.find(p => p.semana === semana);
     if (existing) return existing;
     return { id: crypto.randomUUID(), alunoId, semana, conteudos: '', listas: '', simulados: '', observacoes: '' };
   };
 
-  const handleSave = (p: PlanejamentoSemanal) => {
-    savePlanejamento(p);
-    setPlanejamentos(getPlanejamentos(alunoId));
-  };
+  const handleChange = useCallback((semana: number, field: string, value: string) => {
+    const current = getOrCreate(semana);
+    const updated = { ...current, [field]: value };
+    setLocalEdits(prev => ({ ...prev, [semana]: updated }));
+
+    // Debounce save
+    if (debounceTimers.current[semana]) clearTimeout(debounceTimers.current[semana]);
+    debounceTimers.current[semana] = setTimeout(() => {
+      savePlanejamento(updated);
+    }, 800);
+  }, [planejamentos, localEdits, savePlanejamento, alunoId]);
 
   return (
     <div className="animate-fade-in">
@@ -85,19 +89,19 @@ export default function PlanejamentoSection({ alunoId }: Props) {
                 <div className="p-4 space-y-3 bg-card/50">
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Conteúdos estudados</label>
-                    <Textarea value={p.conteudos} onChange={e => handleSave({ ...p, conteudos: e.target.value })} className="bg-background border-border text-sm min-h-[60px]" />
+                    <Textarea value={p.conteudos} onChange={e => handleChange(semana, 'conteudos', e.target.value)} className="bg-background border-border text-sm min-h-[60px]" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Listas de exercícios</label>
-                    <Textarea value={p.listas} onChange={e => handleSave({ ...p, listas: e.target.value })} className="bg-background border-border text-sm min-h-[60px]" />
+                    <Textarea value={p.listas} onChange={e => handleChange(semana, 'listas', e.target.value)} className="bg-background border-border text-sm min-h-[60px]" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Simulados realizados</label>
-                    <Textarea value={p.simulados} onChange={e => handleSave({ ...p, simulados: e.target.value })} className="bg-background border-border text-sm min-h-[60px]" />
+                    <Textarea value={p.simulados} onChange={e => handleChange(semana, 'simulados', e.target.value)} className="bg-background border-border text-sm min-h-[60px]" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Observações</label>
-                    <Textarea value={p.observacoes} onChange={e => handleSave({ ...p, observacoes: e.target.value })} className="bg-background border-border text-sm min-h-[60px]" />
+                    <Textarea value={p.observacoes} onChange={e => handleChange(semana, 'observacoes', e.target.value)} className="bg-background border-border text-sm min-h-[60px]" />
                   </div>
                 </div>
               )}

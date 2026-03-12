@@ -1,18 +1,18 @@
 import React from 'react';
-import { getStudents, getSimulados, getProvasEnem } from '@/lib/store';
+import { useStudents, useSimulados, useProvasEnem } from '@/hooks/useSupabaseData';
 import { Users, ClipboardList, Award, TrendingUp } from 'lucide-react';
 import { contentTemplate } from '@/data/contentTemplate';
 
 export default function DashboardOverview() {
-  const students = getStudents();
-  const totalSimulados = students.reduce((acc, s) => acc + getSimulados(s.id).length, 0);
-  const totalProvas = students.reduce((acc, s) => acc + getProvasEnem(s.id).length, 0);
+  const { students } = useStudents();
+  const { simulados } = useSimulados();
+  const { provas } = useProvasEnem();
 
   const stats = [
     { label: 'Alunos', value: students.length, icon: Users },
     { label: 'Conteúdos', value: contentTemplate.length, icon: TrendingUp },
-    { label: 'Simulados', value: totalSimulados, icon: ClipboardList },
-    { label: 'Provas ENEM', value: totalProvas, icon: Award },
+    { label: 'Simulados', value: simulados.length, icon: ClipboardList },
+    { label: 'Provas ENEM', value: provas.length, icon: Award },
   ];
 
   return (

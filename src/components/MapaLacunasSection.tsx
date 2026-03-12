@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { getSimulados, getProvasEnem, getContents } from '@/lib/store';
-import { getStudents } from '@/lib/store';
+import { useSimulados, useProvasEnem, useContents, useStudents } from '@/hooks/useSupabaseData';
 import { AlertTriangle, CheckCircle2, AlertCircle, Target, TrendingDown, Zap } from 'lucide-react';
 
 interface Props { alunoId: string; }
@@ -21,17 +20,17 @@ function classifyPct(pct: number): 'critico' | 'moderado' | 'dominado' {
 }
 
 export default function MapaLacunasSection({ alunoId }: Props) {
-  const student = useMemo(() => getStudents().find(s => s.id === alunoId), [alunoId]);
-  const simulados = useMemo(() => getSimulados(alunoId), [alunoId]);
-  const provas = useMemo(() => getProvasEnem(alunoId), [alunoId]);
-  const contents = useMemo(() => getContents(alunoId), [alunoId]);
+  const { students } = useStudents();
+  const { simulados } = useSimulados(alunoId);
+  const { provas } = useProvasEnem(alunoId);
+  const { contents } = useContents(alunoId);
 
-  // Avg per area across simulados + provas (last 5 of each)
+  const student = useMemo(() => students.find(s => s.id === alunoId), [students, alunoId]);
+
   const areaStats = useMemo(() => {
     const recent = [...simulados].slice(-5);
     const recentProvas = [...provas].slice(-3);
     const allEntries = [...recent, ...recentProvas];
-
     return AREAS.map(area => {
       const avg = allEntries.length > 0
         ? allEntries.reduce((sum, e) => sum + (e[area.key as AreaKey] ?? 0), 0) / allEntries.length
@@ -41,80 +40,32 @@ export default function MapaLacunasSection({ alunoId }: Props) {
     });
   }, [simulados, provas]);
 
-  // Gap analysis from content dominio
   const gapContents = useMemo(() => {
-    // Group contents by area and check dominio status
-    const areas: Record<string, { total: number; dominated: number }> = {
-      Linguagens: { total: 0, dominated: 0 },
-      Humanas: { total: 0, dominated: 0 },
-      Natureza: { total: 0, dominated: 0 },
-      Matemática: { total: 0, dominated: 0 },
-    };
-    contents.forEach(c => {
-      if (areas[c.area]) {
-        areas[c.area].total++;
-        if (c.dominio) areas[c.area].dominated++;
-      }
-    });
-
-    // Build gap list from non-dominated contents (sample top ones per area)
     const lacunas: { nome: string; area: string; status: 'critico' | 'moderado' | 'dominado' }[] = [];
-    contents
-      .filter(c => !c.dominio)
-      .forEach(c => {
-        // Find area pct from areaStats
-        const areaMap: Record<string, AreaKey> = {
-          Linguagens: 'linguagens', Humanas: 'humanas', Natureza: 'natureza', Matemática: 'matematica',
-        };
-        const statArea = areaStats.find(a => a.key === areaMap[c.area]);
-        const areaPct = statArea?.pct ?? null;
-
-        let status: 'critico' | 'moderado' | 'dominado';
-        if (!c.teoria && !c.pratica) {
-          status = 'critico'; // Nem teoria nem prática
-        } else if (!c.pratica || (areaPct !== null && areaPct < 50)) {
-          status = 'moderado';
-        } else {
-          status = 'moderado';
-        }
-        lacunas.push({ nome: c.nome, area: c.area, status });
-      });
-
-    // Sort: critico first
+    contents.filter(c => !c.dominio).forEach(c => {
+      const areaMap: Record<string, AreaKey> = { Linguagens: 'linguagens', Humanas: 'humanas', Natureza: 'natureza', Matemática: 'matematica' };
+      const statArea = areaStats.find(a => a.key === areaMap[c.area]);
+      const areaPct = statArea?.pct ?? null;
+      let status: 'critico' | 'moderado' | 'dominado';
+      if (!c.teoria && !c.pratica) status = 'critico';
+      else if (!c.pratica || (areaPct !== null && areaPct < 50)) status = 'moderado';
+      else status = 'moderado';
+      lacunas.push({ nome: c.nome, area: c.area, status });
+    });
     lacunas.sort((a, b) => {
       const order = { critico: 0, moderado: 1, dominado: 2 };
       return order[a.status] - order[b.status];
     });
-
     return lacunas;
   }, [contents, areaStats]);
 
   const topPrioridades = useMemo(() => gapContents.filter(g => g.status === 'critico').slice(0, 5), [gapContents]);
-
   const dominated = useMemo(() => contents.filter(c => c.dominio).length, [contents]);
 
   const statusConfig = {
-    critico: {
-      label: 'Lacuna Crítica',
-      icon: AlertTriangle,
-      bar: 'bg-destructive',
-      badge: 'bg-destructive/20 text-destructive border-destructive/30',
-      dot: '🔴',
-    },
-    moderado: {
-      label: 'Lacuna Moderada',
-      icon: AlertCircle,
-      bar: 'bg-yellow-500',
-      badge: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      dot: '🟡',
-    },
-    dominado: {
-      label: 'Dominado',
-      icon: CheckCircle2,
-      bar: 'bg-emerald-500',
-      badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-      dot: '🟢',
-    },
+    critico: { label: 'Lacuna Crítica', icon: AlertTriangle, bar: 'bg-destructive', badge: 'bg-destructive/20 text-destructive border-destructive/30', dot: '🔴' },
+    moderado: { label: 'Lacuna Moderada', icon: AlertCircle, bar: 'bg-yellow-500', badge: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', dot: '🟡' },
+    dominado: { label: 'Dominado', icon: CheckCircle2, bar: 'bg-emerald-500', badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', dot: '🟢' },
   };
 
   const hasData = simulados.length > 0 || provas.length > 0;
@@ -123,7 +74,6 @@ export default function MapaLacunasSection({ alunoId }: Props) {
     <div className="animate-fade-in space-y-6">
       <h2 className="font-display text-2xl text-primary">MAPA DE LACUNAS</h2>
 
-      {/* BLOCO 1 — TERMÔMETRO DE ÁREAS */}
       <div className="bg-card border border-border rounded-lg p-5">
         <div className="flex items-center gap-2 mb-4">
           <TrendingDown className="h-4 w-4 text-primary" />
@@ -142,9 +92,7 @@ export default function MapaLacunasSection({ alunoId }: Props) {
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-sm text-foreground">{area.label}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        ~{avg}/{area.max}
-                      </span>
+                      <span className="text-xs text-muted-foreground">~{avg}/{area.max}</span>
                       {status && (
                         <span className={`text-xs px-2 py-0.5 rounded-full border ${statusConfig[status].badge}`}>
                           {statusConfig[status].dot} {statusConfig[status].label}
@@ -153,14 +101,7 @@ export default function MapaLacunasSection({ alunoId }: Props) {
                     </div>
                   </div>
                   <div className="h-3 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        !status ? 'bg-muted-foreground' :
-                        status === 'critico' ? 'bg-destructive' :
-                        status === 'moderado' ? 'bg-yellow-500' : 'bg-emerald-500'
-                      }`}
-                      style={{ width: `${pct}%` }}
-                    />
+                    <div className={`h-full rounded-full transition-all duration-500 ${!status ? 'bg-muted-foreground' : status === 'critico' ? 'bg-destructive' : status === 'moderado' ? 'bg-yellow-500' : 'bg-emerald-500'}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
@@ -169,14 +110,11 @@ export default function MapaLacunasSection({ alunoId }: Props) {
         )}
       </div>
 
-      {/* BLOCO 2 — LISTA DE LACUNAS PRIORITÁRIAS */}
       <div className="bg-card border border-border rounded-lg p-5">
         <div className="flex items-center gap-2 mb-4">
           <AlertTriangle className="h-4 w-4 text-primary" />
           <h3 className="font-display text-sm text-muted-foreground uppercase tracking-wider">Lista de Lacunas Prioritárias</h3>
-          <span className="ml-auto text-xs text-muted-foreground">
-            {dominated}/{contents.length} dominados
-          </span>
+          <span className="ml-auto text-xs text-muted-foreground">{dominated}/{contents.length} dominados</span>
         </div>
         {contents.length === 0 ? (
           <p className="text-muted-foreground text-sm">Marque conteúdos na seção Conteúdos para ver as lacunas.</p>
@@ -206,7 +144,6 @@ export default function MapaLacunasSection({ alunoId }: Props) {
         )}
       </div>
 
-      {/* BLOCO 3 — PRIORIDADE DE ATAQUE */}
       {topPrioridades.length > 0 && (
         <div className="bg-card border border-border rounded-lg p-5">
           <div className="flex items-center gap-2 mb-4">
