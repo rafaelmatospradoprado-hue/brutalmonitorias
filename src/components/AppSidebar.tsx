@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import logo from '@/assets/logo_brutal.jpeg';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, Users, BookOpen, Calendar, ClipboardList, Award, TrendingUp, LogOut, Shield, MapPin, PlayCircle, MessageCircleQuestion } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Calendar, ClipboardList, Award, TrendingUp, LogOut, Shield, MapPin, PlayCircle, MessageCircleQuestion, Bot, Route } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'alunos', label: 'Alunos', icon: Users },
+  { id: 'nivelamento', label: 'Ciclo Básico 1', icon: Route },
   { id: 'conteudos', label: 'Conteúdos', icon: BookOpen },
   { id: 'planejamento', label: 'Planejamento', icon: Calendar },
   { id: 'simulados', label: 'Simulados', icon: ClipboardList },
@@ -15,6 +16,7 @@ const navItems = [
   { id: 'lacunas', label: 'Mapa de Lacunas', icon: MapPin },
   { id: 'questoes', label: 'Questões', icon: MessageCircleQuestion },
   { id: 'revisao', label: 'Revisão', icon: PlayCircle },
+  { id: 'redacao', label: 'Assistente IA', icon: Bot },
   { id: 'mentor', label: 'Painel Mentor', icon: Shield },
 ];
 
