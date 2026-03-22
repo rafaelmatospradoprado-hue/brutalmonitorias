@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 150 30% 4%;
+    --foreground: 43 60% 85%;
+
+    --card: 155 30% 7%;
+    --card-foreground: 43 60% 85%;
+
+    --popover: 155 30% 7%;
+    --popover-foreground: 43 60% 85%;
+
+    --primary: 43 76% 52%;
+    --primary-foreground: 150 30% 4%;
+
+    --secondary: 155 30% 14%;
+    --secondary-foreground: 43 60% 85%;
+
+    --muted: 155 20% 12%;
+    --muted-foreground: 43 20% 55%;
+
+    --accent: 155 30% 18%;
+    --accent-foreground: 43 60% 85%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 155 20% 16%;
+    --input: 155 20% 16%;
+    --ring: 43 76% 52%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 155 30% 6%;
+    --sidebar-foreground: 43 60% 85%;
+    --sidebar-primary: 43 76% 52%;
+    --sidebar-primary-foreground: 150 30% 4%;
+    --sidebar-accent: 155 30% 12%;
+    --sidebar-accent-foreground: 43 60% 85%;
+    --sidebar-border: 155 20% 14%;
+    --sidebar-ring: 43 76% 52%;
+
+    --gold: 43 76% 52%;
+    --gold-light: 40 70% 87%;
+    --green-military: 155 30% 20%;
+    --green-dark: 155 30% 10%;
+
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', sans-serif;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
